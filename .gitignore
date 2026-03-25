@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env
+
+# VSCode
+.vscode/
+
+# Data / storage
+storage/
+app/storage/
+*.sqlite3
+
+# macOS
+.DS_Store
+
+# logs
+*.log
+
+# node modules (if ever used)
+node_modules/
+
+# Recommended to ignore tokens/env files
+.env.local
+.env.*.local
+
+# GitHub actions
+.github/workflows/
