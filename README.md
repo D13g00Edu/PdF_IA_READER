@@ -1,67 +1,183 @@
-# PDF AI Reader
+# 📄 PDF AI Reader
 
-Proyecto FastAPI para cargar PDF y responder preguntas usando embeddings + RAG (Google Gemini).
+API construida con FastAPI que permite **subir PDFs y hacer preguntas sobre su contenido** utilizando **RAG (Retrieval-Augmented Generation)** y embeddings con Google Gemini.
 
-## Estructura
+---
 
-- `app/main.py`: app FastAPI
-- `app/routes/*`: rutas `chat` y `pdf`
-- `app/services/rag_service.py`: pipeline de embeddings, vector store y respuestas con Gemini
-- `app/core/config.py`: configuración de rutas y env
-- `storage/`: archivos subidos, vector db y metadata
+## 🚀 ¿Qué hace este proyecto?
 
-## Requisitos
+* 📤 Subes un PDF
+* 🧠 Procesa el contenido en fragmentos (chunks)
+* 🔢 Convierte el texto en embeddings
+* ⚡ Indexa la información con FAISS
+* 💬 Permite hacer preguntas y responder con contexto del documento
 
-- Python 3.11+ (o 3.10)
-- Crear un virtualenv, activar e instalar dependencias:
+---
+
+## 🧱 Arquitectura del proyecto
+
+```
+app/
+│
+├── main.py                # Inicializa FastAPI
+├── routes/
+│   ├── pdf.py             # Endpoints para manejo de PDFs
+│   └── chat.py            # Endpoint para preguntas (RAG)
+│
+├── services/
+│   └── rag_service.py     # Lógica de embeddings, FAISS y generación de respuestas
+│
+├── core/
+│   └── config.py          # Configuración y variables de entorno
+│
+storage/
+├── uploads/               # PDFs subidos
+├── vectordb/              # Índice FAISS
+└── metadata.json          # Metadatos
+```
+
+---
+
+## ⚙️ Requisitos
+
+* Python 3.10 o superior
+* Entorno virtual
+
+### Instalación
 
 ```bash
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 ```
 
-> Si no tienes `requirements.txt`, instala:
-> `fastapi`, `uvicorn`, `langchain`, `langchain-google-genai`, `langchain-community`, `faiss-cpu`, etc.
-
-## Variables de entorno (obligatorio)
-
-No debe haber credenciales en el código. Se usa:
-
-- `GOOGLE_API_KEY` (tu clave GEMINI/Google Generative AI)
-
-Ejemplo local:
+Si no tienes `requirements.txt`, instala:
 
 ```bash
-set GOOGLE_API_KEY=tu_clave_aqui
+pip install fastapi uvicorn langchain langchain-google-genai langchain-community faiss-cpu
 ```
+---
 
-O archivo `.env` (no subido a git gracias a `.gitignore`):
-
-```
-GOOGLE_API_KEY=tu_clave_aqui
-```
-
-## Puesta en marcha
+## ▶️ Ejecutar el proyecto
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-- Abre `http://127.0.0.1:8000/docs`
+Abrir documentación interactiva:
 
-## Limpieza y seguridad antes de push a GitHub
+👉 http://127.0.0.1:8000/docs
 
-1. Confirmar que no hay claves en los archivos fuente (`app/services/rag_service.py` ahora usa `GOOGLE_API_KEY`).
-2. Añadir `.gitignore` y asegurar `storage/`, `venv/`, `.env` están ignorados.
-3. Revisión rápida:
-   - `git status`
-   - `git diff` (no aparece la API key)
-4. Commit y push:
-   - `git add .`
-   - `git commit -m "Inicial: setup PDF AI Reader con env seguro"`
-   - `git push origin main`
+---
 
-## Nota
+## 🔌 Endpoints principales
 
-Si en algún lugar aún hay un token hardcodeado, eliminarlo e inevitablemente usar `os.getenv("GOOGLE_API_KEY")`, como ya está en `app/services/rag_service.py` y `app/core/config.py`.
+### 📤 Subir PDF
+
+```
+POST /pdf/upload
+```
+
+* Guarda el archivo
+* Procesa embeddings
+* Crea índice FAISS
+
+---
+
+### ❓ Hacer preguntas
+
+```
+POST /chat/ask
+```
+
+Body:
+
+```json
+{
+  "question": "¿De qué trata el documento?"
+}
+```
+
+* Busca contenido relevante
+* Responde usando contexto del PDF
+
+---
+
+### 🧹 Limpiar datos
+
+```
+POST /pdf/clear
+```
+
+* Elimina archivos, índice y metadata
+
+---
+
+## 🧠 ¿Cómo funciona internamente?
+
+1. Se carga el PDF
+2. Se divide en fragmentos (chunks)
+3. Se generan embeddings (vectores)
+4. Se almacenan en FAISS
+5. Al preguntar:
+
+   * Se busca el contenido más similar
+   * Se genera una respuesta basada en ese contexto
+
+---
+
+## 🔒 Buenas prácticas antes de subir a GitHub
+
+* ❌ No incluir API keys en el código
+* ✅ Usar variables de entorno
+* ✅ Verificar `.gitignore`:
+
+```
+venv/
+.env
+storage/
+```
+
+---
+
+## 🧪 Prueba rápida
+
+1. Inicia el servidor
+2. Ve a `/docs`
+3. Usa `/pdf/upload` para subir un archivo
+4. Usa `/chat/ask` para hacer preguntas
+5. Verifica que responde correctamente
+
+---
+
+## 📌 Notas
+
+* El modelo responde **solo con la información del PDF**
+* Si no encuentra contexto, la respuesta puede ser limitada
+* Ideal para documentos largos o análisis de contenido
+
+---
+
+## 💡 Futuras mejoras
+
+* Control de tamaño de archivos
+* Autenticación (JWT)
+* Ajuste dinámico de `k` en búsqueda
+* Endpoint de estado (`/healthz`)
+* Soporte multi-documento
+
+---
+
+## 📚 Tecnologías usadas
+
+* FastAPI
+* LangChain
+* Google Generative AI (Gemini)
+* FAISS
+* Python
+
+---
+
+## 🧾 Licencia
+
+Uso libre para fines educativos y desarrollo.
